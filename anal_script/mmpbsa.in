@@ -1,0 +1,26 @@
+&general
+  startframe = 4901
+  endframe = 5001
+  sys_name = "Decomposition_with_NMODE"
+  temperature = 298
+  verbose = 2
+  exp_ki = 0
+  full_traj = 0
+  gmx_path = "/media/dell/2T/cadd/Gromacs202106/gromacs_2021_06/bin/"
+  interval = 1
+  interaction_entropy = 1
+  ions_parameters = 1
+  keep_files = 2
+  forcefields = "oldff/leaprc.ff14SB,leaprc.gaff2"
+/
+&gb
+  igb = 5
+  intdiel = 1
+  saltcon = 0.15
+  probe = 1
+/
+&decomp
+  idecomp=2,
+  dec_verbose=3,
+  csv_format=1,
+  print_res="within 6"  
