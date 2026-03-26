@@ -1,81 +1,166 @@
-# Automatic Gromacs Workflow Script
-*Author: Thibault Tubiana, PhD*  
-**Please read before using this script.**
+Automated MD Analysis Pipeline for Protein-Ligand Systems
 
-## Description
-This script is made to facilitate the preparation and production of protein and protein/ligand, MD.  
-It follows the procedure described for teaching I made at the University of Bergen. You can find lectures content on this page http://tubiana.me/teaching/kjem220-molecular-modelling/ or the pdf describing all the steps on this script here: http://tubiana.me/teaching_files/biocat2020/Tutorial_Gromacs-2019.pdf 
-Fundamental analysis is also generated with gromacs tools (temperature/pressure/rmsd/rmsf/...), and the production trajectories are also cleaned with trjconv (imaging/protein centred/water stripped), but all the original trajectories are kept.  
+This repository provides a high-performance, automated pipeline for analyzing Protein-Ligand Molecular Dynamics (MD) trajectories. It supports multi-replica processing, Free Energy Surface (FES) construction, and publication-quality (1000 DPI) image generation.
+
+📜 Acknowledgments
+
+This analysis suite is built upon the foundational work of Thibault Tubiana, PhD, specifically his repository: protocolGromacs (My personal GROMACS workflow and best practices). We sincerely thank him for his contribution to the GROMACS community and for providing a robust protocol architecture.
+
+🚀 1. GMX Environment Setup
+
+It is highly recommended to use conda to create an isolated environment to ensure compatibility between gmx_MMPBSA, AmberTools, and GROMACS.
+
+# Create and activate environment
+conda create -n gmx python=3.9
+conda activate gmx
+
+# Install core dependencies (Topology & Chemistry)
+conda install -c conda-forge -c salilab acpype
+conda install -c conda-forge openbabel
+conda install pdbfixer
+conda install ipykernel
+conda install biopython jupyter nbconvert 
+
+# Install calculation tools
+conda install -c ostrokach dssp
+conda install -c conda-forge mpi4py=3.1.3 ambertools=21.12 
+conda install cuda-cudart cuda-version=12
+
+# Install specific ParmEd version (Critical for gmx_MMPBSA)
+python -m pip install git+[http://github.com/Valdes-Tresanco-MS/ParmEd.git@v3.4](http://github.com/Valdes-Tresanco-MS/ParmEd.git@v3.4)
+
+# Install GROMACS (2021.3 with GPU support)
+conda install -c bioconda gromacs=2021.3 
+
+# Install gmx_MMPBSA
+python -m pip install gmx_MMPBSA
+
+# Install Visualization tools
+conda install pymol-open-source
+
+
+🏗️ 2. Pipeline Architecture
+
+The analysis script anal_test.sh follows a modular workflow to handle multiple simulation replicas:
+
+Trajectory Standardization: Synchronizes topologies and cleans trajectories (water removal, complex centering) to generate match.xtc and match.tpr.
+
+Global Metrics: Calculates RMSD (Protein & Ligand), RMSF, Radius of Gyration (Rg), and SASA.
+
+Replica-Specific Metrics: Individual Hydrogen Bond evolution and 2D Free Energy Surfaces (FES) with colorbar scales.
+
+Advanced Thermodynamics: Binding Free Energy calculations via gmx_MMPBSA with Interaction Entropy (IE) corrections.
+
+Residue-Level Deep Mining:
+
+Automatically parses all residues (34+) contributing to the Binding Energy (DELTAS).
+
+Calculates Residue-Ligand Min-Distance and Occupancy.
+
+GUI Replication Factory:
+
+Automatically generates 5 core TIF images (TDC, SDC, GB Delta, etc.) replicating the gmx_MMPBSA_ana GUI style.
+
+High Resolution: All images are exported at 1000 DPI for publication.
+
+🧪 3. Default Force Field & Parameters
+
+The pipeline adheres to the following scientific standards:
+
+Protein: Amberff99SB-ILDN (Optimized for kinase and complex systems).
+
+Ligand: GAFF2 (Generated via acpype with BCC charges).
+
+Water Model: TIP3P.
+
+MMPBSA Settings:
+
+igb = 2 / 5 (Generalized Born models).
+
+idecomp = 2 (Per-residue energy decomposition).
+
+saltcon = 0.15 (Physiological salt concentration).
+
+🛠️ 4. Usage
+
+Execution
+
+Use numactl to bind specific CPU cores for maximum efficiency during parallel MMPBSA tasks:
+
+# Syntax: ./anal_test.sh [Workflow_Path] [Ligand_Name] [GPU_ID]
+numactl --physcpubind=52-67 ./anal_test.sh /path/to/workdir LIG 2
+
+
+Folder Structure (Results Archive)
+
+All results are automatically organized within the merged_analysis directory:
+
+merged_analysis/
+├── rmsd_merged.csv            # Comparison data across all replicas
+├── replica_1/                 # Specific data for Replica 1
+│   ├── distance_plots/        # 1000 DPI plots for 34+ individual residues
+│   ├── hbond_rep1.png         # Hydrogen bond count over time
+│   ├── fes2d_rep1.png         # 2D Free Energy Surface with Colorbar
+│   ├── summary_occupancy.png  # Bar chart of contact frequencies
+│   └── cpd3_rep1_SDC.tif      # GUI-style Sidechain Decomposition (TIF)
+└── replica_2/                 # Data specific to Replica 2 ...
+
+
+📌 5. Notes
+
+DPI Settings: All script-generated figures are forced to 1000 DPI. TIF files may be large; ensure adequate disk space.
+
+Naming Convention: The script automatically handles GLY:193 colon-separated residue naming from MMPBSA output.
+
+Original protocolGromacs Documentation
+
+Author: Thibault Tubiana, PhD Please read before using this script.
+
+Description
+
+This script is made to facilitate the preparation and production of protein and protein/ligand, MD.
+
+It follows the procedure described for teaching I made at the University of Bergen. You can find lectures content on this page http://tubiana.me/teaching/kjem220-molecular-modelling/ or the pdf describing all the steps on this script here: http://tubiana.me/teaching_files/biocat2020/Tutorial_Gromacs-2019.pdf
+Fundamental analysis is also generated with gromacs tools (temperature/pressure/rmsd/rmsf/...), and the production trajectories are also cleaned with trjconv (imaging/protein centred/water stripped), but all the original trajectories are kept.
+
 Feel free to make other analysis of course, like trajectory clustering with TTClust https://github.com/tubiana/TTClust 😇
 
-## Disclamer
-* Each system is unique. This protocol and MD parameters is not adapted for all systems. If your system crash, you may have to tweak MDP parameters.  
-* Ligand parametrisation is *"quick and dirty"*, For a more stable MD system you may have to tweak ACPYPE parameters (and check the hydrogens that are added with babel).
+Disclamer
 
+Each system is unique. This protocol and MD parameters is not adapted for all systems. If your system crash, you may have to tweak MDP parameters.
 
-## Dependencies
-- this script only works on Linux (maybe Mac) and use the BASH syntax.
-- For ligand parametrisation, I use ACPYPE (https://github.com/alanwilter/acpype) which can generate parameters for Amber, Gromacs and Charmm. Please cite this paper if you use ACPYPE: https://doi.org/10.1016/j.softx.2019.100241.  
-   1. To install ACPYPE, I sugg0est you to install first Miniconda (if you don't already have conda https://docs.conda.io/en/latest/miniconda.html) and the create a new conda environment with the command `conda create -n acpype -c conda-forge acpype` 
-   2. then activate the environment with `conda activate acpype`
-   3. Hydrogens on ligand: openbabel. You can install it with `conda install -c conda-forge openbabel`
-   
-Here's a unique command line to create a environment with every depencencies  
-`conda create -n gmx -c conda-forge -c salilab acpype dssp`  
-you can activate the environment with `conda activate gmx`
+Ligand parametrisation is "quick and dirty", For a more stable MD system you may have to tweak ACPYPE parameters (and check the hydrogens that are added with babel).
 
-## How to
-1. Make sure you have all the dependencies 
-    1. If you have a protein-ligand system, make sure acpype is installed (see **parameters**)
-    2. Gromacs
-    3. (optional) DSSP version 3
-2. Clone this repository with the command `git clone https://github.com/tubiana/protocolGromacs.git`
-3. Put your PDB in the repository
-4. Make the change you need in runGromacs.sh (See **parameters**)
-5. run the script with `bash runGromacs.sh`
+How to
 
-## Parameters
-You have to make some changes in the script file (runGromacs).
-- **FILE**: PDB filename **without the extension** (2h4g.pdb --> FILE=2h4g)
-- **LIGNAME**: 3 letter ligand name (it has to be the same in the PDB). NOTE: **The ligand name will be change to `LIG` afterward.**
-- **BOXSIZE**: Periodic box size in nm (between protein and box facet) default is **1.2**
-- **BOXTYPE**: Box type. Default is **cubic** (see http://manual.gromacs.org/documentation/5.1.4/onlinehelp/gmx-editconf.html for more details)
-- **NT**: Number of CPU cores. Default is **8**
-- **WATER**: Water-type. Default is **tip3p**
-- **NUMBEROFREPLICAS**: Number of replicas (the same simulation will be done 3 times from the minimisation). Default is **3**
-- **FF**: Force field, default is **amber99sb-ildn**
-- **SIMULATIONTIME**: Simulation time in `ns`. Default is **100**. The script will automatically calculate and modify the number of steep according to the timestep in mdp/md_prod.mpd.
+Make sure you have all the dependencies
 
-## Workflow
+If you have a protein-ligand system, make sure acpype is installed
 
-Here's a picture describing the workflow in this script, but you can find more information on each step on my tutorial http://tubiana.me/teaching_files/biocat2020/Tutorial_Gromacs-2019.pdf. You can, of course, modify my script as you want :-)
+Gromacs
 
-![](img/gromacs_protocol.png "gromacs_protocol" )
+(optional) DSSP version 3
 
-## folder structure
-Here's a description of the folder structure after a simulation job:
-```
-|-- .                             #--> repo folder, the script, the initial structure and topologie files
-    |-- param                     #--> only if ligand is present, will contain receptor and ligand parameters
-        |-- receptor              #--> receptor structure and topology
-        |-- ligand                #--> receptor topology
-            |-- ligand.acpype     #--> ligand topology
-    |-- mdp                       #--> original mdp parameters
-    |-- replica_X                 #--> simulation for replica number X (if 3 replica, then 3 folders)
-        |-- graph                 #--> All the output graph are saved here (rmsd,rmsf,energy.....)
-        |-- gro                   #--> Some output structures from MD are saved here
-        |-- mdp                   #--> copy of previous mdp folder
-        |-- results               #--> contains the MD
-            |-- mini              #--> minimisation MD files
-            |-- nvt               #--> heationg MD files
-            |-- npt               #--> equilibration MD files
-            |-- prod              #--> production MD files
-```
+Clone this repository with the command git clone https://github.com/tubiana/protocolGromacs.git
 
+Put your PDB in the repository
 
-## Last thing...
+Make the change you need in runGromacs.sh
+
+run the script with bash runGromacs.sh
+
+Parameters
+
+FILE: PDB filename without the extension
+
+LIGNAME: 3 letter ligand name
+
+NUMBEROFREPLICAS: Number of replicas (Default is 3)
+
+SIMULATIONTIME: Simulation time in ns.
+
+Last thing...
+
 Have fun with MD and send me a mail if or open an issue if you have any problems, or just if you used this script and want to thanks me, I will be please to know that it was useful for someone 🙂
-
-
 
 Thibault Tubiana.
