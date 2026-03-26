@@ -57,7 +57,7 @@ The analysis script anal\_test.sh follows a modular workflow to handle multiple 
 
 The pipeline adheres to the following scientific standards:
 
-* **Protein**: Amberff99SB-ILDN (Optimized for kinase and complex systems).  
+* **Protein**: Amberff14SB (Optimized for kinase and complex systems).  
 * **Ligand**: GAFF2 (Generated via acpype with BCC charges).  
 * **Water Model**: TIP3P.  
 * **MMPBSA Settings**:  
