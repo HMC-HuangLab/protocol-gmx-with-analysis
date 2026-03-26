@@ -18,7 +18,7 @@ def plot_sasa_analysis(csv_file):
     df = pd.read_csv(csv_file)
     
     # 创建图表
-    fig, ax = plt.subplots(figsize=(12, 7), dpi=300)
+    fig, ax = plt.subplots(figsize=(12, 7), dpi=1000)
     
     # 颜色方案
     colors = ['#a1c9f4', '#ffd1dc', '#baffc9', '#ffdfba', '#ffffba', '#ff9999']
@@ -49,9 +49,9 @@ def plot_sasa_analysis(csv_file):
     # 保存图片
     output_file = csv_file.replace('.csv', '.png')
     plt.savefig(output_file, dpi=1000, bbox_inches='tight')
-    print(f"SASA 图已保存：{output_file}")
+    print(f"SASA plot saved.：{output_file}")
     
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":

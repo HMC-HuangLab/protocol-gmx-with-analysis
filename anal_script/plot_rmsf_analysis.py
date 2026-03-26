@@ -18,7 +18,7 @@ def plot_rmsf_analysis(csv_file):
     df = pd.read_csv(csv_file)
     
     # 创建图表
-    fig, ax = plt.subplots(figsize=(14, 7), dpi=300)
+    fig, ax = plt.subplots(figsize=(14, 7), dpi=1000)
     
     # 颜色方案
     colors = ['#a1c9f4', '#ffd1dc', '#baffc9', '#ffdfba', '#ffffba', '#ff9999']
@@ -33,7 +33,7 @@ def plot_rmsf_analysis(csv_file):
     # 设置标签和标题
     ax.set_xlabel('Residue', fontsize=16)
     ax.set_ylabel('RMSF (nm)', fontsize=16)
-    ax.set_title('Root Mean Square Fluctuation (RMSF)', fontsize=18)
+    ax.set_title('Protein RMSF', fontsize=18)
     
     # 设置刻度字体
     ax.tick_params(axis='both', which='major', labelsize=14)
@@ -49,9 +49,9 @@ def plot_rmsf_analysis(csv_file):
     # 保存图片
     output_file = csv_file.replace('.csv', '.png')
     plt.savefig(output_file, dpi=1000, bbox_inches='tight')
-    print(f"RMSF 图已保存：{output_file}")
+    print(f"RMSF plot saved.：{output_file}")
     
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":

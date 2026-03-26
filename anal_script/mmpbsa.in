@@ -6,7 +6,6 @@
   verbose = 2
   exp_ki = 0
   full_traj = 0
-  gmx_path = "/media/dell/2T/cadd/Gromacs202106/gromacs_2021_06/bin/"
   interval = 1
   interaction_entropy = 1
   ions_parameters = 1

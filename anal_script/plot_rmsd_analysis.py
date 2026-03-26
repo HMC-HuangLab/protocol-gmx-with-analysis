@@ -49,9 +49,9 @@ def plot_rmsd_analysis(csv_file, title="RMSD Analysis", ylabel="RMSD (nm)"):
     # 保存图片
     output_file = csv_file.replace('.csv', '.png')
     plt.savefig(output_file, dpi=1000, bbox_inches='tight')
-    print(f"RMSD 图已保存：{output_file}")
+    print(f"RMSD plot saved.：{output_file}")
     
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":

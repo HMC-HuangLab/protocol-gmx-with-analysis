@@ -48,7 +48,7 @@ def plot_mmpbsa_decomp(dat_file):
     df = df.sort_values('ResNum')
 
     # 绘图
-    plt.figure(figsize=(14, 6), dpi=300)
+    plt.figure(figsize=(14, 6), dpi=1000)
     # 结合能贡献通常为负值（越负贡献越大），使用不同颜色区分
     colors = ['#ff7f0e' if x > 0 else '#1f77b4' for x in df['Energy']]
     
@@ -64,7 +64,7 @@ def plot_mmpbsa_decomp(dat_file):
     plt.tight_layout()
     out_img = dat_file.replace('.dat', '_contribution.png')
     plt.savefig(out_img, bbox_inches='tight')
-    print(f"能量分解贡献图已保存：{out_img}")
+    print(f"MMPSBA plot saved.：{out_img}")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
